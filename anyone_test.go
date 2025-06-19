@@ -26,11 +26,11 @@ func TestRunCase1(t *testing.T) {
 	result, err := Run(
 		context.Background(),
 		[]Worker[*Dummy]{
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				<-c
 				return &Dummy{ID: 1}, nil
 			},
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				defer notify()
 				return &Dummy{ID: 2}, nil
 			},
@@ -52,11 +52,11 @@ func TestRunCase2(t *testing.T) {
 	_, err := Run(
 		context.Background(),
 		[]Worker[*Dummy]{
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				<-c
 				return nil, errors.New("error in worker1")
 			},
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				defer notify()
 				return nil, errors.New("error in worker2")
 			},
@@ -75,11 +75,11 @@ func TestRunCase3(t *testing.T) {
 	result, err := Run(
 		context.Background(),
 		[]Worker[*Dummy]{
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				<-c
 				return &Dummy{}, nil
 			},
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				defer notify()
 				return nil, errors.New("error in worker")
 			},
@@ -98,11 +98,11 @@ func TestRunCase4(t *testing.T) {
 	result, err := Run(
 		context.Background(),
 		[]Worker[*Dummy]{
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				<-c
 				return &Dummy{}, nil
 			},
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				defer notify()
 				panic("panic in worker")
 			},
@@ -121,11 +121,11 @@ func TestRunCase5(t *testing.T) {
 	_, err := Run(
 		context.Background(),
 		[]Worker[*Dummy]{
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				<-c
 				panic("panic in worker1")
 			},
-			func() (*Dummy, error) {
+			func(_ context.Context) (*Dummy, error) {
 				defer notify()
 				panic("panic in worker2")
 			},
@@ -142,7 +142,7 @@ func TestRunCase5(t *testing.T) {
 func TestTimeoutCase1(t *testing.T) {
 	_, err := Timeout(
 		context.Background(),
-		func() (*Dummy, error) {
+		func(_ context.Context) (*Dummy, error) {
 			time.Sleep(2 * time.Second)
 			return &Dummy{}, nil
 		},
@@ -156,7 +156,7 @@ func TestTimeoutCase1(t *testing.T) {
 func TestTimeoutCase2(t *testing.T) {
 	_, err := Timeout(
 		context.Background(),
-		func() (*Dummy, error) {
+		func(_ context.Context) (*Dummy, error) {
 			return &Dummy{}, nil
 		},
 		1*time.Second,
@@ -169,7 +169,7 @@ func TestTimeoutCase2(t *testing.T) {
 func TestWithTimeoutCase1(t *testing.T) {
 	_, err := WithTimeout(
 		context.Background(),
-		func() (*Dummy, error) {
+		func(_ context.Context) (*Dummy, error) {
 			time.Sleep(2 * time.Second)
 			return &Dummy{}, nil
 		},
@@ -183,7 +183,7 @@ func TestWithTimeoutCase1(t *testing.T) {
 func TestWithTimeoutCase2(t *testing.T) {
 	result, err := WithTimeout(
 		context.Background(),
-		func() (*Dummy, error) {
+		func(_ context.Context) (*Dummy, error) {
 			return &Dummy{ID: 1}, nil
 		},
 		1*time.Second,
@@ -199,7 +199,7 @@ func TestWithTimeoutCase2(t *testing.T) {
 func TestWithTimeoutPanic(t *testing.T) {
 	_, err := WithTimeout(
 		context.Background(),
-		func() (*Dummy, error) {
+		func(_ context.Context) (*Dummy, error) {
 			panic("oops")
 		},
 		1*time.Second,

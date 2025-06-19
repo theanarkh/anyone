@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Worker[T any] func() (T, error)
+type Worker[T any] func(ctx context.Context) (T, error)
 
 func Run[T any](ctx context.Context, workers []Worker[T]) (T, error) {
 	var total = int32(len(workers))
@@ -48,7 +48,7 @@ func Run[T any](ctx context.Context, workers []Worker[T]) (T, error) {
 					wg.Done()
 				}
 			}()
-			res, e = worker()
+			res, e = worker(ctx)
 		}()
 	}
 	wg.Wait()
@@ -81,7 +81,7 @@ func Timeout[T any](ctx context.Context, worker Worker[T], timeout time.Duration
 			}
 			close(dc)
 		}()
-		res, e := worker()
+		res, e := worker(ctx)
 		select {
 		case dc <- &Result{
 			Result: res,
